@@ -1,0 +1,228 @@
+﻿Number of Atoms
+Given a string, representing a chemical formula, return the count of each atom.
+An atomic element always starts with an uppercase character, then zero or more lowercase letters follow, representing the name. One or more digits representing that element's count may follow if the count is greater than 1. If the count is 1, no digits will follow. For example, H2O and H2O2 are possible, but H1O2 is impossible. Two formulas can be concatenated together to produce another formula. For example, H2O2He3Mg4 is also a formula.
+A formula placed in parentheses, and a count (optionally added) is also a formula. For example, (H2O2) and (H2O2)3 are formulas. Given a formula, return the count of all elements as a string in the following form: the first name (in sorted order), followed by its count (if that count is more than 1), followed by the second name (in sorted order), followed by its count (if that count is more than 1), and so on.
+Note : The given formula consists of English alphabets, digits, ‘(‘ and ’)’. The given formula is always valid. 
+Input Format: The first line of input contains an integer 'T' representing the number of test cases. Then the test cases follow. The only line of each test case contains a string representing the formula.
+Output Format: For each test case, return the string representing the count of all the elements is printed. The output for each test case is in a separate line.
+Note: You are not required to print the expected output, it has already been taken care of. Just implement the function.
+Constraints:
+1 <= T <= 10
+1 <= |S| <= 10^4
+Time Limit: 1 sec
+Note : The count of each element in the formula will not exceed 2^31.
+Sample Input 1:
+2
+H2O
+Mg(OH)2
+Sample Output 1:
+H2O
+H2MgO2
+Explanation of the Sample Input 1: The first formula contains two elements H and O, with their count as 2 and 1 respectively. Since the count of O is not greater than 1, it is printed as O only and H is printed as H2.  The second formula contains three elements : Mg, O and H. Mg has a count of 1 and since O and H are in parentheses followed by the digit 2, both have a count of 2. 
+Sample Input 2:
+1
+K4(ON(SO3)2)2
+Sample Output 2:
+K4N2O14S4
+Explanation of Sample Input 2
+For the given formula, the elements are K, O, N and S. The count of K is 4, N is 2, O is 14 ( (1 + (3*2)) * 2 = 14) and that of S is 4 (2 * 2).
+Sample Input 3
+1
+Be32
+Sample Output 3
+Be32
+CODE:
+/*
+    Time Complexity : O(N * log(N))
+    Space Complexity :  O(N)
+
+
+    Where N is the length of the given string/formula.
+*/
+
+
+import java.util.HashMap;
+import java.util.Stack;
+import java.lang.Character;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.ArrayList;
+
+
+class Pair {
+
+
+        String monoAtom;
+        int count;
+
+
+        Pair(String monoAtom, int count) {
+                this.monoAtom = monoAtom;
+                this.count = count;
+        }
+}
+
+
+class SortComparator implements Comparator<Pair> {
+
+
+        @Override
+        public int compare(Pair p1, Pair p2) {
+
+
+                return p1.monoAtom.compareTo(p2.monoAtom);
+        }
+
+
+}
+
+
+public class Solution {
+
+
+        public static String countNumberOfAtoms(String formula) {
+                // Map to store the count of atoms.
+                HashMap<String, Integer> cntOfAtoms = new HashMap<>();
+
+
+                // Stack to store the current value of the numeric counter.
+                Stack<Integer> s = new Stack<>();
+
+
+                // Variable to denote the current value of the numeric counter.
+                int cnt = 0;
+
+
+                // Variable to denote the value by which the multiplicities of the elements should be increased.
+                int coeff = 1;
+
+
+                // String to store the element name.
+                String element = "";
+
+
+                int pow10 = 1;
+
+
+                int index = ((int) formula.length()) - 1;
+                while (index >= 0) {
+
+
+                        // If the current char is a digit, update the value of the cnt variable.
+                        if (Character.isDigit(formula.charAt(index))) {
+
+
+                                cnt += (formula.charAt(index) - '0') * pow10;
+                                pow10 *= 10;
+
+
+                        } else if (formula.charAt(index) == ')') {
+
+
+                                // Push the variable cnt to the stack.
+                                if (cnt == 0) {
+
+
+                                        s.push(1);
+
+
+                                } else {
+
+
+                                        coeff *= cnt;
+                                        s.push(cnt);
+
+
+                                }
+
+
+                                cnt = 0;
+                                pow10 = 1;
+
+
+                        } else if (formula.charAt(index) == '(') {
+
+
+                                coeff /= s.peek();
+                                s.pop();
+                                cnt = 0;
+                                pow10 = 1;
+
+
+                        } else if (Character.isUpperCase(formula.charAt(index))) {
+
+
+                                element += formula.charAt(index);
+
+
+                                // Since we are traversing the string from right to left, we will get the reversed element name.
+                                StringBuffer sb = new StringBuffer(element);
+                                sb.reverse();
+                                element = sb.toString();
+
+
+                                // Update the count of the element in the map.
+                                if (cnt == 0) {
+                                        if (!cntOfAtoms.containsKey(element))
+                                                cntOfAtoms.put(element, coeff);
+                                        else
+                                                cntOfAtoms.put(element, cntOfAtoms.get(element) + coeff);
+                                } else {
+                                        if (!cntOfAtoms.containsKey(element))
+                                                cntOfAtoms.put(element, coeff * cnt);
+                                        else
+                                                cntOfAtoms.put(element, cntOfAtoms.get(element) + coeff * cnt);
+                                }
+
+
+                                element = "";
+                                cnt = 0;
+                                pow10 = 1;
+
+
+                        } else {
+                                element += formula.charAt(index);
+                        }
+
+
+                        index--;
+                }
+
+
+                ArrayList<Pair> atomsCount = new ArrayList<>();
+
+
+                for (String key : cntOfAtoms.keySet()) {
+                        Pair p = new Pair(key, cntOfAtoms.get(key));
+                        atomsCount.add(p);
+                }
+
+
+                // Sort the vector to get elements in lexicographical order.
+                Collections.sort(atomsCount, new SortComparator());
+
+
+                // String to store the final result.
+                String ans = "";
+
+
+                // Build a string from the arrayList.
+                for (Pair atom : atomsCount) {
+
+
+                        String monoAtom = atom.monoAtom;
+                        int count = atom.count;
+
+
+                        ans += monoAtom;
+
+
+                        if (count > 1) {
+                                ans += count;
+                        }
+                }
+
+
+                return ans;
+        }
+}

@@ -1,0 +1,60 @@
+﻿Sum Swap
+You are given two arrays 'NUMS1' and 'NUMS2' of size 'N' and 'M', respectively. You have to swap an element from the first array with an element from the second array. Your task is to determine if it is possible to make the sum of the elements of both the arrays equal after swapping.
+Input Format:
+The first line contains an integer 'T', which denotes the number of test cases or queries to be run. Then, the 'T' test cases follow.  The first line of each test case contains two space-separated integers, 'N' and 'M, as described in the problem statement. The second line of each test case contains 'N' space-separated integers denoting the elements of the first array 'NUMS1'. The third line of each test case contains 'M' space-separated integers denoting the elements of the second array 'NUMS2'. For more clarity, please refer to the sample inputs.
+Output Format: For each test case, print a single line containing “True” if there are such two elements, else print  “False”. The output for each test case will be printed in a separate line.
+Note: You do not need to print anything. It has already been taken care of. Just implement the given function.
+Constraints:
+1 <= T <= 100
+1 <= N, M <= 5000
+-10 ^ 9 <= X <= 10 ^ 9
+
+
+Where 'N' and 'M' denote the size of the arrays and 'X' is the value of elements of the arrays. Time Limit: 1 sec.
+Sample Input 1:
+1
+5 4
+1 2 3 4 5
+4 4 4 7
+Sample Output 1:
+True
+Explanation for sample input 1:
+In the given example, the sum of the elements of the first array is 15, and the sum of the elements of the second array is 19. If we swap 5 from the first array and 7 from the second array, the sum of the first array will now become 17, and the sum of the second array will now become 17 as well. Since the sums are equal, we can return True.
+Sample Input 2:
+1
+4 4
+1 2 3 4
+9 10 11 12
+Sample Output 2:
+False
+Explanation for sample input 2:
+In the given example, we can not find a pair of elements(one from each array) such that after swapping them, we can make the sum of the first array equal to the sum of the second array. Hence, the answer is False.
+CODE:
+import java.util.*
+public class Solution {
+    public static boolean sumSwap(ArrayList<Integer> nums1, ArrayList<Integer> nums2, int n, int m) {
+        boolean result = false;
+        int sum_one = 0;
+        int sum_two = 0;
+        for(int i = 0; i < n; i++) {
+            sum_one += nums1.get(i);
+        }
+        for(int i = 0; i < m; i++) {
+            sum_two += nums2.get(i);
+        }
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                int newSum1 = sum_one - nums1.get(i) + nums2.get(j);
+                // System.out.println(newSum1);
+                int newSum2 = sum_two - nums2.get(j) + nums1.get(i);
+                // System.out.println(newSum2);
+                if(newSum1 == newSum2) {
+                    return true;
+                } else {
+                    continue;
+                }
+            }
+        }
+        return result;
+    }
+}
